@@ -75,7 +75,7 @@ class TimeoutError(Exception):
 
     def __str__(self):
         return repr(self.value)
-            
+
 
 def init_corenlp_command(corenlp_path, memory, properties):
     """
@@ -187,6 +187,7 @@ def parse_parser_results(text):
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
                     sentence['dependencies'].append(tuple([rel, left, right]))
+                    sentence['indexeddependencies'].append(tuple(split_entry))
 
         elif state == STATE_COREFERENCE:
             if 'Coreference set' in line:
@@ -505,7 +506,7 @@ if __name__ == '__main__':
             server.register_function(nlp.parse)
 
             print 'Serving on http://%s:%s' % (options.host, options.port)
-            
+
             server.serve_forever()
         else:
             server = SimpleJSONRPCServer((options.host, int(options.port)))
@@ -514,7 +515,7 @@ if __name__ == '__main__':
             server.register_function(lb.getAll)
             server.register_function(lb.getCompleted)
             server.register_function(lb.getForKey)
-            
+
             print 'Serving on http://%s:%s, with servers on ports %s' % (options.host, options.port, options.ports)
 
             server.serve_forever()
