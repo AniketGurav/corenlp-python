@@ -157,7 +157,7 @@ def parse_parser_results(text):
         line = line.strip()
 
         if line.startswith("Sentence #"):
-            sentence = {'words': [], 'parsetree': [], 'dependencies': []}
+            sentence = {'words': [], 'parsetree': [], 'dependencies': [], 'indexeddependencies': []}
             results["sentences"].append(sentence)
             state = STATE_TEXT
 
