@@ -8,6 +8,8 @@ loadbalancing so client scripts need not worry about such logic.
 import os, requests, json, sys, jsonrpclib
 from subprocess import Popen, PIPE
 from hashlib import sha1
+import random
+import string
 
 class CoreNLPLoadBalancer:
     def __init__(self, options):
@@ -47,6 +49,7 @@ class CoreNLPLoadBalancer:
         can correlate requests to responses.
         """
         currentPort = self.ports[self.portCounter]
+        text = text + ''.join(random.choice(string.ascii_lowercase) for i in range(6))
         key = sha1(text).hexdigest()
         filename = self.tempdir+key+".tmp"
         f = open(filename, 'w')
