@@ -5,23 +5,29 @@ at different ports, and allow the same script to handle
 loadbalancing so client scripts need not worry about such logic.
 """
 
-import os, requests, json, sys, jsonrpclib
+import os
+import requests
+import json
+import sys
+import jsonrpclib
 from subprocess import Popen, PIPE
 from hashlib import sha1
 import random
 import string
 
+
 class CoreNLPLoadBalancer:
+
     def __init__(self, options):
         self.tempdir = "/tmp/"
         self.ports = options.ports.split(',')
         self.host = options.host
         self.serverPool = {}
         self.processPool = {}
-        self.args = ["python", os.getcwd() + "/corenlp/corenlp.py", \
-                    '--host=%s' % (options.host), \
-                    '--properties=%s' % (options.properties), \
-                    '--corenlp=%s' % (options.corenlp)]
+        self.args = ["python", os.getcwd() + "/corenlp/corenlp.py",
+                     '--host=%s' % (options.host),
+                     '--properties=%s' % (options.properties),
+                     '--corenlp=%s' % (options.corenlp)]
         if not options.verbose:
             self.args += ['--quiet']
         self.portCounter = 0
@@ -30,7 +36,8 @@ class CoreNLPLoadBalancer:
     def startup(self):
         """ Open a traditional server subprocess in a new port """
         for port in self.ports:
-            self.serverPool[port] = Popen(self.args + ['--port=%s' % str(port)])
+            self.serverPool[port] = Popen(
+                self.args + ['--port=%s' % str(port)])
 
     def shutdown(self):
         for port in self.ports:
@@ -39,8 +46,9 @@ class CoreNLPLoadBalancer:
     def sendThreadedRequest(self, key, port):
         """ Create a process that communicates with the server in a thread to avoid blocking """
         host = 'http://%s:%s' % (self.host.replace('http://', ''), port)
-        filename = self.tempdir+key+".tmp"
-        self.processPool[key] = Popen(['python', os.getcwd()+'/corenlp/subserver.py', host, filename], stdout=PIPE)
+        filename = self.tempdir + key + ".tmp"
+        self.processPool[key] = Popen(
+            ['python', os.getcwd() + '/corenlp/subserver.py', host, filename], stdout=PIPE)
 
     def send(self, text):
         """ 
@@ -49,19 +57,20 @@ class CoreNLPLoadBalancer:
         can correlate requests to responses.
         """
         currentPort = self.ports[self.portCounter]
-        text = text + ''.join(random.choice(string.ascii_lowercase) for i in range(6))
-        key = sha1(text).hexdigest()
-        filename = self.tempdir+key+".tmp"
+        hashtext = text + \
+            ''.join(random.choice(string.ascii_lowercase) for i in range(6))
+        key = sha1(hashtext).hexdigest()
+        filename = self.tempdir + key + ".tmp"
         f = open(filename, 'w')
         f.write(text)
         f.close()
         self.sendThreadedRequest(key, currentPort)
-        return {'status':'OK', 'key':key}
+        return {'status': 'OK', 'key': key}
 
     def getCompleted(self):
         """ Returns all completed parses. Set blocking to True on your last iteration to get all data """
         docResponse = {}
-        response = {'status':'OK'}
+        response = {'status': 'OK'}
         try:
             for key in self.processPool.keys():
                 print key
@@ -81,7 +90,7 @@ class CoreNLPLoadBalancer:
         response = {}
         for key in self.processPool.keys():
             response[key] = self.getForKey(key)
-        return {'status':'OK', 'parses':response}
+        return {'status': 'OK', 'parses': response}
 
     def getForFinishedProcess(self, process):
         """ Returns a dictionary with json string or empty dictionary """
