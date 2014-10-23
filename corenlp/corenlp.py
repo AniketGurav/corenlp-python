@@ -494,6 +494,8 @@ if __name__ == '__main__':
                       help='Stanford CoreNLP tool directory (default %s)' % DIRECTORY)
     parser.add_option('-P', '--properties', default='default.properties',
                       help='Stanford CoreNLP properties fieles (default: default.properties)')
+    parser.add_option('-t', '--tempdir', default="/tmp/",
+                      help='Directory in which to store temporary files in load-balanced mode (default: /tmp/)')
     options, args = parser.parse_args()
     VERBOSE = options.verbose
     # server = jsonrpc.Server(jsonrpc.JsonRpc20(),

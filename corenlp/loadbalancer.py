@@ -1,7 +1,7 @@
 """
 A load balancing platform for the CoreNLP python server.
-This allows us to keep multiple instances of the server open 
-at different ports, and allow the same script to handle 
+This allows us to keep multiple instances of the server open
+at different ports, and allow the same script to handle
 loadbalancing so client scripts need not worry about such logic.
 """
 
@@ -19,7 +19,7 @@ import string
 class CoreNLPLoadBalancer:
 
     def __init__(self, options):
-        self.tempdir = "/tmp/"
+        self.tempdir = options.tempdir
         self.ports = options.ports.split(',')
         self.host = options.host
         self.serverPool = {}
@@ -51,9 +51,9 @@ class CoreNLPLoadBalancer:
             ['python', os.getcwd() + '/corenlp/subserver.py', host, filename], stdout=PIPE)
 
     def send(self, text):
-        """ 
-        Writes a temp file with the current text. The subserver script deletes this file for us. 
-        The response sent provides a sha1 key that corresponds to your requested document so we 
+        """
+        Writes a temp file with the current text. The subserver script deletes this file for us.
+        The response sent provides a sha1 key that corresponds to your requested document so we
         can correlate requests to responses.
         """
         currentPort = self.ports[self.portCounter]
