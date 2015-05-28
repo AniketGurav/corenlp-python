@@ -46,7 +46,7 @@ class CoreNLPLoadBalancer:
     def sendThreadedRequest(self, key, port):
         """ Create a process that communicates with the server in a thread to avoid blocking """
         host = 'http://%s:%s' % (self.host.replace('http://', ''), port)
-        filename = self.tempdir + key + ".tmp"
+        filename = os.path.join(self.tempdir, key + ".tmp")
         self.processPool[key] = Popen(
             ['python', os.getcwd() + '/corenlp/subserver.py', host, filename], stdout=PIPE)
 
@@ -60,7 +60,7 @@ class CoreNLPLoadBalancer:
         hashtext = text + \
             ''.join(random.choice(string.ascii_lowercase) for i in range(6))
         key = sha1(hashtext).hexdigest()
-        filename = self.tempdir + key + ".tmp"
+        filename = os.path.join(self.tempdir, key + ".tmp")
         f = open(filename, 'w')
         f.write(text)
         f.close()
